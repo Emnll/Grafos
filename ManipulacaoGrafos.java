@@ -6,6 +6,7 @@ public class ManipulacaoGrafos {
     ArrayList<LinkedList<Aresta>> listaAdjacencia = new ArrayList<>();
     int quantidadeArestas;
     int tamGrafo;
+    List<Boolean> visitados;
 
     public void lerGrafo(String nomeArquivo){
         try {
@@ -22,9 +23,8 @@ public class ManipulacaoGrafos {
                 }
             }
 
-            for (int i = 0; i < tamGrafo; i++) {
-                listaAdjacencia.add(new LinkedList<>());
-            }
+            listaAdjacencia = new ArrayList<>(Collections.nCopies(tamGrafo, new LinkedList<>()));
+
 
             while (myReader.hasNextLine()) {
                 quantidadeArestas++;
@@ -50,7 +50,7 @@ public class ManipulacaoGrafos {
             }
             myReader.close();
         } catch (FileNotFoundException e) {
-            System.out.println("An error occurred.");
+            System.out.println("Houve um erro");
             e.printStackTrace();
         }
     }
@@ -87,7 +87,7 @@ public class ManipulacaoGrafos {
             myObj.close();
 
         }catch (IOException e) {
-            System.out.println("An error occurred.");
+            System.out.println("Houve um erro");
             e.printStackTrace();
         }
 
@@ -121,6 +121,89 @@ public class ManipulacaoGrafos {
 
         }
     }
+
+    public void buscaGrafo(int escolha, int noInicial, String nomeArquivo){
+
+        List<Integer> pais = new ArrayList<>(Collections.nCopies(tamGrafo, -1));
+        List<Integer> niveis = new ArrayList<>(Collections.nCopies(tamGrafo, -1));
+        visitados = new ArrayList<>(Collections.nCopies(tamGrafo, false));
+        noInicial--;
+        switch (escolha) {
+            case 1:
+
+                dfs(noInicial, -1, 0, pais, niveis);
+                escreverBusca(pais, niveis, nomeArquivo, "DFS");
+
+                break;
+            case 2:
+                bfs(noInicial, pais, niveis);
+                escreverBusca(pais, niveis, nomeArquivo, "BFS");
+
+
+
+        }
+    }
+
+    private void bfs(int no, List<Integer> pais, List<Integer> niveis){
+        Queue<Integer> queue = new LinkedList<>();
+
+        queue.add(no);
+        visitados.set(no, true);
+        niveis.set(no, 0);
+
+        while(!queue.isEmpty()){
+            int atual = queue.poll();
+            for(Aresta viz: listaAdjacencia.get(atual)){
+                int vizinho = viz.getVertice();
+                if(!visitados.get(vizinho)){
+                    visitados.set(vizinho, true);
+                    queue.add(vizinho);
+                    pais.set(vizinho, atual);
+                    niveis.set(vizinho, niveis.get(atual) + 1);
+                }
+            }
+        }
+
+
+    }
+
+    private void dfs(int no, int pai, int nivel, List<Integer> pais, List<Integer> niveis) {
+        visitados.set(no, true);
+        pais.set(no, pai);
+        niveis.set(no, nivel);
+        System.out.print(no + " ");
+
+        for (Aresta viz : listaAdjacencia.get(no)) {
+            int vizinho = viz.getVertice();
+            if (!visitados.get(vizinho)) {
+                dfs(vizinho, no, nivel + 1, pais, niveis);
+            }
+        }
+    }
+
+    private void escreverBusca(List<Integer> pais, List<Integer> niveis, String arquivo, String tipoBusca){
+        try (PrintWriter escrita = new PrintWriter(new File(arquivo))) {
+            escrita.println(tipoBusca + " Arvore de Busca");
+            escrita.println("Vertice | Pai | Nivel");
+            escrita.println("-------|--------|------");
+            for (int i = 0; i < tamGrafo; i++) {
+                int pai = pais.get(i) == -1 ? -1 : pais.get(i) + 1;
+                escrita.printf("%6d | %6d | %5d%n", i + 1, pai, niveis.get(i));
+            }
+        } catch (FileNotFoundException e) {
+            System.out.println("Erro ao escrever no arquivo: " + e.getMessage());
+        }
+    }
+
+
+
+
+
+
+
+
+
+
 
 
 
