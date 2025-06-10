@@ -38,7 +38,7 @@ public class ManipulacaoGrafos {
                 Aresta aresta = new Aresta(resultado.get(0), resultado.get(2));
                 Aresta aresta2 = new Aresta(resultado.get(1), resultado.get(2));
 
-                if(resultado.get(0) != resultado.get(1)) {
+                if(!resultado.get(0).equals(resultado.get(1))) {
                     matrizAdjacencia[resultado.get(0) - 1][resultado.get(1) - 1].add(aresta);
                 }
 
@@ -138,6 +138,10 @@ public class ManipulacaoGrafos {
             case 2:
                 bfs(noInicial, pais, niveis);
                 escreverBusca(pais, niveis, nomeArquivo, "BFS");
+                break;
+            default:
+                System.out.println("Escolha outra opção");
+                break;
 
 
 
@@ -154,7 +158,7 @@ public class ManipulacaoGrafos {
         while(!queue.isEmpty()){
             int atual = queue.poll();
             for(Aresta viz: listaAdjacencia.get(atual)){
-                int vizinho = viz.getVertice();
+                int vizinho = viz.getVertice() - 1;
                 if(!visitados.get(vizinho)){
                     visitados.set(vizinho, true);
                     queue.add(vizinho);
@@ -174,7 +178,7 @@ public class ManipulacaoGrafos {
         System.out.print(no + " ");
 
         for (Aresta viz : listaAdjacencia.get(no)) {
-            int vizinho = viz.getVertice();
+            int vizinho = viz.getVertice() - 1;
             if (!visitados.get(vizinho)) {
                 dfs(vizinho, no, nivel + 1, pais, niveis);
             }
@@ -195,19 +199,52 @@ public class ManipulacaoGrafos {
         }
     }
 
+    public void componentesConexos(String saida) {
+        visitados = new ArrayList<>(Collections.nCopies(tamGrafo, false));
+        List<List<Integer>> componentes = new ArrayList<>();
+        List<Integer> tamanhos = new ArrayList<>();
 
+        for (int i = 0; i < tamGrafo; i++) {
+            if (!visitados.get(i)) {
+                List<Integer> componente = new ArrayList<>();
+                dfsComponentes(i, componente);
+                componentes.add(componente);
+                tamanhos.add(componente.size());
+            }
+        }
 
+        List<Integer> indices = new ArrayList<>();
+        for (int i = 0; i < componentes.size(); i++) indices.add(i);
+        indices.sort((a, b) -> Integer.compare(tamanhos.get(b), tamanhos.get(a)));
 
+        try (PrintWriter writer = new PrintWriter(new File(saida))) {
+            writer.println("Connected Components");
+            writer.println("Number of components: " + componentes.size());
+            writer.println();
+            for (int idx : indices) {
+                writer.println("Component " + (idx + 1) + ":");
+                writer.println("Size: " + tamanhos.get(idx));
+                writer.print("Vertices: ");
+                List<Integer> comp = componentes.get(idx);
+                for (int i = 0; i < comp.size(); i++) {
+                    writer.print((comp.get(i) + 1)); // Adjust for 1-based indexing
+                    if (i < comp.size() - 1) writer.print(", ");
+                }
+                writer.println("\n");
+            }
+        } catch (FileNotFoundException e) {
+            System.out.println("Error writing to file: " + e.getMessage());
+        }
+    }
 
-
-
-
-
-
-
-
-
-
-
-
+    private void dfsComponentes(int atual, List<Integer> componente) {
+        visitados.set(atual, true);
+        componente.add(atual);
+        for (Aresta aresta : listaAdjacencia.get(atual)) {
+            int vizinho = aresta.getVertice();
+            if (!visitados.get(vizinho)) {
+                dfsComponentes(vizinho, componente);
+            }
+        }
+    }
 }

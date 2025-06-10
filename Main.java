@@ -5,5 +5,6 @@ public class Main {
         grafo.lerGrafo("grafo.txt");
         grafo.relatorioGrafo("grafo2.txt");
         grafo.representacaoGrafo(2);
+        grafo.buscaGrafo(1,3, "grafo3.txt");
     }
 }

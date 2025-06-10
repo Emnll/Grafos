@@ -1,6 +1,6 @@
 public class Aresta {
     int vertice;
-    int peso;
+    float peso;
 
     public Aresta(int vertice, int peso){
         this.vertice = vertice;
@@ -11,7 +11,7 @@ public class Aresta {
         return vertice;
     }
 
-    public int getPeso(){
+    public float getPeso(){
         return peso;
     }
 
