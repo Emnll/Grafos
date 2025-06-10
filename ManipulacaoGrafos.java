@@ -241,7 +241,7 @@ public class ManipulacaoGrafos {
         visitados.set(atual, true);
         componente.add(atual);
         for (Aresta aresta : listaAdjacencia.get(atual)) {
-            int vizinho = aresta.getVertice();
+            int vizinho = aresta.getVertice() - 1;
             if (!visitados.get(vizinho)) {
                 dfsComponentes(vizinho, componente);
             }

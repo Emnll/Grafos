@@ -6,5 +6,6 @@ public class Main {
         grafo.relatorioGrafo("grafo2.txt");
         grafo.representacaoGrafo(2);
         grafo.buscaGrafo(1,3, "grafo3.txt");
+        grafo.componentesConexos("grafo4.txt");
     }
 }
