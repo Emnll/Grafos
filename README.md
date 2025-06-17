@@ -1,5 +1,20 @@
 # Grafos
 Uma biblioteca que permitirá o usuário manipular grafos
+
+### Formato do Arquivo de Entrada
+O arquivo de entrada deverá ser escrito da seguinte forma:
+
+* Em formato txt
+
+* Vértices de 1 - X -> O vértice obrigatoriamente deve começar com 1
+
+* A primeira linha deve conter a quantidade de vértices
+
+* As linhas seguintes devem descrever as arestas, sendo sua estrutura a seguinte: Vértice1 Vértice2 Peso*
+* Sendo o peso opcional e os items separados por apenas 1 espaço
+
+* O Grafo aceito é não direcionado, pode ou não ser simples e pode ou não ser conexo
+
 ### Explicação dos arquivos e parâmetros
 Há três arquivos:
 * Aresta.java:
