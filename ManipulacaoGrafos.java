@@ -106,23 +106,32 @@ public class ManipulacaoGrafos {
                 }
                 System.out.println("\n---------------------------------------------");
 
-                // Imprime cada linha da matriz
                 for (int i = 0; i < quantidadeVertices; i++) {
-                    System.out.printf("%-2d | ", i+1); // Imprime o cabeçalho da linha
+                    System.out.printf("%-2d | ", i + 1);
                     for (int j = 0; j < quantidadeVertices; j++) {
                         if (matrizAdjacencia[i][j].isEmpty()) {
-                            System.out.printf("%-8s", "[-]");
+                            System.out.printf("%-10s", "[-]");
                         } else {
-                            Aresta a = matrizAdjacencia[i][j].get(0); // Assume 1 aresta entre vértices
-                            if (a.getPeso() == null) {
-                                System.out.printf("%-8s", "[1]");
+                            Aresta firstAresta = matrizAdjacencia[i][j].get(0);
+                            if (firstAresta.getPeso() == null) {
+                                System.out.printf("%-10s", "[" + matrizAdjacencia[i][j].size() + "]");
                             } else {
-                                System.out.printf(Locale.US, "[%.1f]  ", a.getPeso());
+                                StringBuilder pesos = new StringBuilder("[");
+                                for (int k = 0; k < matrizAdjacencia[i][j].size(); k++) {
+                                    Aresta a = matrizAdjacencia[i][j].get(k);
+                                    pesos.append(String.format(Locale.US, "%.1f", a.getPeso()));
+                                    if (k != matrizAdjacencia[i][j].size() - 1) {
+                                        pesos.append(",");
+                                    }
+                                }
+                                pesos.append("]");
+                                System.out.printf("%-10s", pesos);
                             }
                         }
                     }
                     System.out.println();
                 }
+
         }
     }
 
