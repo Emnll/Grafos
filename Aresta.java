@@ -1,8 +1,8 @@
 public class Aresta {
     int vertice;
-    float peso;
+    Float peso;
 
-    public Aresta(int vertice, int peso){
+    public Aresta(int vertice, Float peso){
         this.vertice = vertice;
         this.peso = peso;
     }
@@ -11,12 +11,12 @@ public class Aresta {
         return vertice;
     }
 
-    public float getPeso(){
+    public Float getPeso(){
         return peso;
     }
 
     @Override
     public String toString() {
-        return vertice + " " + peso;
+        return vertice + (peso != null ? " " + peso : "");
     }
 }

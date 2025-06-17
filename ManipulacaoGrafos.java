@@ -5,7 +5,7 @@ public class ManipulacaoGrafos {
     List<Aresta>[][] matrizAdjacencia;
     ArrayList<LinkedList<Aresta>> listaAdjacencia = new ArrayList<>();
     int quantidadeArestas;
-    int tamGrafo;
+    int quantidadeVertices;
     List<Boolean> visitados;
 
     public void lerGrafo(String nomeArquivo){
@@ -14,39 +14,41 @@ public class ManipulacaoGrafos {
             Scanner myReader = new Scanner(myObj);
 
             String primeiraLinha = myReader.nextLine();
-            tamGrafo = Integer.parseInt(primeiraLinha);
-            matrizAdjacencia = new List[tamGrafo][tamGrafo];
+            quantidadeVertices = Integer.parseInt(primeiraLinha);
+            matrizAdjacencia = new List[quantidadeVertices][quantidadeVertices];
 
-            for (int i = 0; i < tamGrafo; i++) {
-                for (int j = 0; j < tamGrafo; j++) {
+            for (int i = 0; i < quantidadeVertices; i++) {
+                for (int j = 0; j < quantidadeVertices; j++) {
                     matrizAdjacencia[i][j] = new ArrayList<>();
                 }
             }
 
-            listaAdjacencia = new ArrayList<>(Collections.nCopies(tamGrafo, new LinkedList<>()));
-
+            for (int i = 0; i < quantidadeVertices; i++) {
+                listaAdjacencia.add(new LinkedList<>());
+            }
 
             while (myReader.hasNextLine()) {
-                quantidadeArestas++;
-                String data = myReader.nextLine();
+                String data = myReader.nextLine().trim();
+                if (data.isEmpty()) continue;
+
                 String[] linha = data.split(" ");
-                List<Integer> resultado = new ArrayList<>();
-                for(int i = 0; i < 3; i++) {
-                    resultado.add(Integer.parseInt(linha[i]));
-                }
+                if (linha.length < 2) continue;
 
-                Aresta aresta = new Aresta(resultado.get(0), resultado.get(2));
-                Aresta aresta2 = new Aresta(resultado.get(1), resultado.get(2));
+                quantidadeArestas++;
 
-                if(!resultado.get(0).equals(resultado.get(1))) {
-                    matrizAdjacencia[resultado.get(0) - 1][resultado.get(1) - 1].add(aresta);
-                }
+                int origem = Integer.parseInt(linha[0]);
+                int destino = Integer.parseInt(linha[1]);
+                Float peso = (linha.length == 3) ? Float.parseFloat(linha[2]) : null;
 
-                matrizAdjacencia[resultado.get(1) - 1][resultado.get(0) - 1].add(aresta2);
+                Aresta aresta = new Aresta(destino, peso);
+                Aresta aresta2 = new Aresta(origem, peso);
 
+                matrizAdjacencia[origem - 1][destino - 1].add(aresta);
+                matrizAdjacencia[destino - 1][origem - 1].add(aresta2);
 
-                listaAdjacencia.get(resultado.get(0) - 1).add(aresta2);
-                listaAdjacencia.get(resultado.get(1) - 1).add(aresta);
+                listaAdjacencia.get(origem - 1).add(aresta);
+                listaAdjacencia.get(destino - 1).add(aresta2);
+
             }
             myReader.close();
         } catch (FileNotFoundException e) {
@@ -55,12 +57,8 @@ public class ManipulacaoGrafos {
         }
     }
 
-    public List<Aresta>[][] getMatrizAdjacencia() {
-        return matrizAdjacencia;
-    }
-
     public void relatorioGrafo(String nomeArquivo){
-        int tamGrafo = listaAdjacencia.size();
+        int tamGrafo = quantidadeVertices;
         float somaGraus = 0;
         Map<Integer, Integer> contagemGrau = new HashMap<>();
 
@@ -70,23 +68,24 @@ public class ManipulacaoGrafos {
             myObj.write("\n# m = " + quantidadeArestas);
 
             for (int i = 0; i < tamGrafo; i++) {
-                somaGraus =+ listaAdjacencia.get(i).size();
                 int grau = listaAdjacencia.get(i).size();
-                contagemGrau.put(grau,contagemGrau.getOrDefault(grau, 0) + 1 );
+                somaGraus += grau;
+                contagemGrau.put(grau, contagemGrau.getOrDefault(grau, 0) + 1);
             }
 
             myObj.write("\n# d_medio = " + somaGraus/tamGrafo);
 
-            for (Map.Entry<Integer, Integer> entry : contagemGrau.entrySet()) {
-                int grau = entry.getKey();
-                int contagem = entry.getValue();
-                double probabilidade = (double) contagem / tamGrafo;
+            int grauMaximo = Collections.max(contagemGrau.keySet());
 
+            for (int grau = 0; grau <= grauMaximo; grau++) {
+                int contagem = contagemGrau.getOrDefault(grau, 0);
+                double probabilidade = (double) contagem / tamGrafo;
                 myObj.write("\n" + grau + " " + String.format("%.2f", probabilidade));
             }
+
             myObj.close();
 
-        }catch (IOException e) {
+        } catch (IOException e) {
             System.out.println("Houve um erro");
             e.printStackTrace();
         }
@@ -94,48 +93,54 @@ public class ManipulacaoGrafos {
     }
 
     public void representacaoGrafo(int escolha){
-
-
         switch (escolha) {
             case 1:
-                for (int i = 0; i < tamGrafo; i++) {
+                for (int i = 0; i < quantidadeVertices; i++) {
                     System.out.printf("%d: %s\n", (i + 1),listaAdjacencia.get(i).toString());
                 }
                 break;
             case 2:
                 System.out.print("     ");
-                for (int i = 0; i < tamGrafo; i++) {
-                    System.out.printf("%-10s", i);
+                for (int i = 0; i < quantidadeVertices; i++) {
+                    System.out.printf("%-10s", i + 1);
                 }
                 System.out.println("\n---------------------------------------------");
 
                 // Imprime cada linha da matriz
-                for (int i = 0; i < tamGrafo; i++) {
-                    System.out.printf("%-2d | ", i); // Imprime o cabeçalho da linha
-                    for (int j = 0; j < tamGrafo; j++) {
-                        String cellContent = matrizAdjacencia[i][j].isEmpty() ? "[-]" : matrizAdjacencia[i][j].toString();
-                        System.out.printf("%-10s", cellContent);
+                for (int i = 0; i < quantidadeVertices; i++) {
+                    System.out.printf("%-2d | ", i+1); // Imprime o cabeçalho da linha
+                    for (int j = 0; j < quantidadeVertices; j++) {
+                        if (matrizAdjacencia[i][j].isEmpty()) {
+                            System.out.printf("%-8s", "[-]");
+                        } else {
+                            Aresta a = matrizAdjacencia[i][j].get(0); // Assume 1 aresta entre vértices
+                            if (a.getPeso() == null) {
+                                System.out.printf("%-8s", "[1]");
+                            } else {
+                                System.out.printf(Locale.US, "[%.1f]  ", a.getPeso());
+                            }
+                        }
                     }
                     System.out.println();
                 }
-
         }
     }
 
     public void buscaGrafo(int escolha, int noInicial, String nomeArquivo){
 
-        List<Integer> pais = new ArrayList<>(Collections.nCopies(tamGrafo, -1));
-        List<Integer> niveis = new ArrayList<>(Collections.nCopies(tamGrafo, -1));
-        visitados = new ArrayList<>(Collections.nCopies(tamGrafo, false));
+        List<Integer> pais = new ArrayList<>(Collections.nCopies(quantidadeVertices, -1));
+        List<Integer> niveis = new ArrayList<>(Collections.nCopies(quantidadeVertices, -1));
+        visitados = new ArrayList<>(Collections.nCopies(quantidadeVertices, false));
         noInicial--;
         switch (escolha) {
             case 1:
-
+                System.out.println("DFS - Lista de Visita: ");
                 dfs(noInicial, -1, 0, pais, niveis);
                 escreverBusca(pais, niveis, nomeArquivo, "DFS");
 
                 break;
             case 2:
+                System.out.println("BFS - Lista de Visita: ");
                 bfs(noInicial, pais, niveis);
                 escreverBusca(pais, niveis, nomeArquivo, "BFS");
                 break;
@@ -154,12 +159,13 @@ public class ManipulacaoGrafos {
         queue.add(no);
         visitados.set(no, true);
         niveis.set(no, 0);
-
+        System.out.print((no+1) + " ");
         while(!queue.isEmpty()){
             int atual = queue.poll();
             for(Aresta viz: listaAdjacencia.get(atual)){
                 int vizinho = viz.getVertice() - 1;
                 if(!visitados.get(vizinho)){
+                    System.out.print((vizinho+1) + " ");
                     visitados.set(vizinho, true);
                     queue.add(vizinho);
                     pais.set(vizinho, atual);
@@ -175,7 +181,7 @@ public class ManipulacaoGrafos {
         visitados.set(no, true);
         pais.set(no, pai);
         niveis.set(no, nivel);
-        System.out.print(no + " ");
+        System.out.print((no+1) + " ");
 
         for (Aresta viz : listaAdjacencia.get(no)) {
             int vizinho = viz.getVertice() - 1;
@@ -190,7 +196,7 @@ public class ManipulacaoGrafos {
             escrita.println(tipoBusca + " Arvore de Busca");
             escrita.println("Vertice | Pai | Nivel");
             escrita.println("-------|--------|------");
-            for (int i = 0; i < tamGrafo; i++) {
+            for (int i = 0; i < quantidadeVertices; i++) {
                 int pai = pais.get(i) == -1 ? -1 : pais.get(i) + 1;
                 escrita.printf("%6d | %6d | %5d%n", i + 1, pai, niveis.get(i));
             }
@@ -200,11 +206,11 @@ public class ManipulacaoGrafos {
     }
 
     public void componentesConexos(String saida) {
-        visitados = new ArrayList<>(Collections.nCopies(tamGrafo, false));
+        visitados = new ArrayList<>(Collections.nCopies(quantidadeVertices, false));
         List<List<Integer>> componentes = new ArrayList<>();
         List<Integer> tamanhos = new ArrayList<>();
 
-        for (int i = 0; i < tamGrafo; i++) {
+        for (int i = 0; i < quantidadeVertices; i++) {
             if (!visitados.get(i)) {
                 List<Integer> componente = new ArrayList<>();
                 dfsComponentes(i, componente);
@@ -218,12 +224,12 @@ public class ManipulacaoGrafos {
         indices.sort((a, b) -> Integer.compare(tamanhos.get(b), tamanhos.get(a)));
 
         try (PrintWriter writer = new PrintWriter(new File(saida))) {
-            writer.println("Connected Components");
-            writer.println("Number of components: " + componentes.size());
+            writer.println("Componentes Conexos");
+            writer.println("Número de componentes: " + componentes.size());
             writer.println();
             for (int idx : indices) {
-                writer.println("Component " + (idx + 1) + ":");
-                writer.println("Size: " + tamanhos.get(idx));
+                writer.println("Componente " + (idx + 1) + ":");
+                writer.println("Tamanho: " + tamanhos.get(idx));
                 writer.print("Vertices: ");
                 List<Integer> comp = componentes.get(idx);
                 for (int i = 0; i < comp.size(); i++) {
