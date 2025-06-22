@@ -267,19 +267,18 @@ public class ManipulacaoGrafos {
         for (int i = 0; i < quantidadeVertices; i++) {
             for(Aresta aresta : listaAdjacencia.get(i)){
                 if(aresta.getPeso() < 0){
-                    return 2;
+                    return 3;
                 }
             }
         }
-
-        return 1;
+        return 2;
     }
 
     private int peso(){
         for (int i = 0; i < quantidadeVertices; i++) {
             for(Aresta aresta : listaAdjacencia.get(i)){
                 if(aresta.getPeso() == null){
-                    return 0;
+                    return 1;
                 }
                 else{
                     return -1;
@@ -296,8 +295,9 @@ public class ManipulacaoGrafos {
         visitados = new ArrayList<>(Collections.nCopies(quantidadeVertices, false));
         Queue<Integer> fila = new LinkedList<>();
 
-        dist.set(noInicial, 0.0f);
-        fila.add(noInicial);
+        dist.set(noInicial-1, 0.0f);
+        pai.set(noInicial-1, 0);
+        fila.add(noInicial-1);
 
         if(noFinal == noInicial){
             System.out.println("O nó inicial e final são iguais :/");
@@ -308,14 +308,14 @@ public class ManipulacaoGrafos {
             int no = fila.poll();
 
             if (!visitados.get(no)) {
-                visitados.set(no, true);
+                visitados.set(no, true); // 0 true
                 for(Aresta aresta : listaAdjacencia.get(no)){
                     int vizinho = aresta.getVertice() - 1;
                     Float distanciaAtt = dist.get(no) + 1;
 
-                    if(dist.get(vizinho) == Integer.MAX_VALUE){
+                    if(dist.get(vizinho) == Float.MAX_VALUE){
                         dist.set(vizinho, distanciaAtt);
-                        pai.set(vizinho, no);
+                        pai.set(vizinho, no+1);
                         fila.add(vizinho);
                     }
                 }
@@ -328,9 +328,10 @@ public class ManipulacaoGrafos {
     private void dijkstra(int noInicial, int noFinal){
         List<Float> dist = new ArrayList<>(Collections.nCopies(quantidadeVertices, Float.MAX_VALUE));
         List<Integer> pai = new ArrayList<>(Collections.nCopies(quantidadeVertices, -1));
-        PriorityQueue<Aresta> heap = new PriorityQueue<>(Comparator.comparingDouble(a -> a.peso));
+        PriorityQueue<Aresta> heap = new PriorityQueue<>(Comparator.comparingDouble(Aresta::getPeso));
 
-        dist.set(noInicial, 0.0f);
+        dist.set(noInicial - 1, 0.0f);
+        pai.set(noInicial - 1 , 0);
         heap.add(new Aresta(noInicial, 0.0f));
 
         while (!heap.isEmpty()) {
@@ -338,24 +339,23 @@ public class ManipulacaoGrafos {
             int atual = aresta.getVertice() - 1;
             Float distanciaAtual = aresta.getPeso();
 
-            if (atual == noFinal) {
-                break;
-            }
-
             if (distanciaAtual > dist.get(atual)) {
                 continue;
             }
 
+            if (atual + 1 == noFinal) {
+                break;
+            }
+
             for(Aresta aresta1 : listaAdjacencia.get(atual)){
                 int vizinho = aresta1.getVertice() - 1;
-
                 Float peso = aresta1.getPeso();
                 Float distanciaPeso = distanciaAtual + peso;
 
                 if(distanciaPeso < dist.get(vizinho)){
                     dist.set(vizinho, distanciaPeso);
-                    pai.set(vizinho, atual);
-                    heap.add(new Aresta(vizinho, distanciaPeso));
+                    pai.set(vizinho, atual+1);
+                    heap.add(new Aresta(aresta1.getVertice(), distanciaPeso));
                 }
             }
         }
@@ -364,42 +364,65 @@ public class ManipulacaoGrafos {
 
     }
 
-    private void bellmanFord(int noInicial, int noFinal){
+    private void bellmanFord(int noInicial, int noFinal) {
         List<Float> dist = new ArrayList<>(Collections.nCopies(quantidadeVertices, Float.MAX_VALUE));
         List<Integer> pai = new ArrayList<>(Collections.nCopies(quantidadeVertices, -1));
 
-        dist.set(noInicial, 0.0f);
-        for (int i = 0; i < quantidadeVertices - 1; i++) {
-            for (int j = 0; j < quantidadeVertices; j++) {
-                if (dist.get(j) == Float.MAX_VALUE) continue;
+        dist.set(noInicial-1, 0.0f);
+         pai.set(noInicial-1, 0);
 
-                for (Aresta aresta : listaAdjacencia.get(j)) {
+        for (int i = 0; i < quantidadeVertices; i++) {
+            boolean atualizado = false;
+
+            for (int u = 0; u < quantidadeVertices; u++) {
+                if (dist.get(u) == Float.MAX_VALUE) {
+                    continue;
+                }
+                for (Aresta aresta : listaAdjacencia.get(u)) {
                     int v = aresta.getVertice() - 1;
                     Float peso = aresta.getPeso();
-
-                    if (dist.get(j) + peso < dist.get(v)) {
-                        dist.set(v, dist.get(j) + peso);
-                        pai.set(v, j);
+                    if (dist.get(u) + peso < dist.get(v)) {
+                        if (i == quantidadeVertices - 1) {
+                            System.out.println("Há um ciclo negativo! Não é possível verificar a distância");
+                            return;
+                        }
+                        dist.set(v, dist.get(u) + peso);
+                        pai.set(v, u+1);
+                        atualizado = true;
                     }
                 }
             }
+            if (!atualizado && i < quantidadeVertices -1) {
+                break;
+            }
         }
-
         printaDistePai(dist, pai, noInicial, noFinal);
     }
 
     private void printaDistePai(List<Float> dist, List<Integer> pai, int noInicial, int noFinal){
-        if (dist.get(noFinal) == Integer.MAX_VALUE) {
+        System.out.println(pai);
+        System.out.println(dist);
+        if (dist.get(noFinal-1) == Float.MAX_VALUE) {
             System.out.println("O nó final não tem conexão com o nó inicial");
         } else{
-            System.out.println("Distância mínima: " + dist.get(noFinal));
-            System.out.print("Caminho: " + noInicial);
-            Integer atual = noFinal;
-            while (atual != null){
-                atual = pai.get(atual);
-                System.out.print(", " + atual);
-                if (atual == noInicial){
-                    break;
+            System.out.println("Distância mínima: " + dist.get(noFinal-1));
+
+
+            LinkedList<Integer> path = new LinkedList<>();
+            int atual = noFinal - 1;
+            path.addFirst(noFinal);
+            atual = pai.get(atual);
+
+            while(atual > 0){
+                path.addFirst(atual);
+                atual = pai.get(atual-1);
+            }
+
+            System.out.print("Caminho: ");
+            for (int i = 0; i < path.size(); i++) {
+                System.out.print(path.get(i));
+                if (i < path.size() - 1) {
+                    System.out.print(" -> ");
                 }
             }
         }
@@ -409,9 +432,10 @@ public class ManipulacaoGrafos {
 
     public void distanciaGrafo(int noInicial, int noFinal) {
         int escolha = peso();
-        if (escolha < 0) {
+        if (escolha <= 0) {
             escolha = pesoNegativo();
         }
+        System.out.println(escolha);
 
         switch (escolha) {
             case 1:
