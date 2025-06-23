@@ -143,13 +143,13 @@ public class ManipulacaoGrafos {
         noInicial--;
         switch (escolha) {
             case 1:
-                System.out.println("DFS - Lista de Visita: ");
+                System.out.println("\nDFS - Lista de Visita: ");
                 dfs(noInicial, -1, 0, pais, niveis);
                 escreverBusca(pais, niveis, nomeArquivo, "DFS");
 
                 break;
             case 2:
-                System.out.println("BFS - Lista de Visita: ");
+                System.out.println("\nBFS - Lista de Visita: ");
                 bfs(noInicial, pais, niveis);
                 escreverBusca(pais, niveis, nomeArquivo, "BFS");
                 break;
@@ -369,7 +369,7 @@ public class ManipulacaoGrafos {
         List<Integer> pai = new ArrayList<>(Collections.nCopies(quantidadeVertices, -1));
 
         dist.set(noInicial-1, 0.0f);
-         pai.set(noInicial-1, 0);
+        pai.set(noInicial-1, 0);
 
         for (int i = 0; i < quantidadeVertices; i++) {
             boolean atualizado = false;
@@ -383,7 +383,7 @@ public class ManipulacaoGrafos {
                     Float peso = aresta.getPeso();
                     if (dist.get(u) + peso < dist.get(v)) {
                         if (i == quantidadeVertices - 1) {
-                            System.out.println("Há um ciclo negativo! Não é possível verificar a distância");
+                            System.out.println("\nHá um ciclo negativo! Não é possível verificar a distância");
                             return;
                         }
                         dist.set(v, dist.get(u) + peso);
@@ -400,12 +400,10 @@ public class ManipulacaoGrafos {
     }
 
     private void printaDistePai(List<Float> dist, List<Integer> pai, int noInicial, int noFinal){
-        System.out.println(pai);
-        System.out.println(dist);
         if (dist.get(noFinal-1) == Float.MAX_VALUE) {
-            System.out.println("O nó final não tem conexão com o nó inicial");
+            System.out.println("\nO nó final não tem conexão com o nó inicial");
         } else{
-            System.out.println("Distância mínima: " + dist.get(noFinal-1));
+            System.out.println("\nDistância mínima: " + dist.get(noFinal-1));
 
 
             LinkedList<Integer> path = new LinkedList<>();
@@ -418,7 +416,7 @@ public class ManipulacaoGrafos {
                 atual = pai.get(atual-1);
             }
 
-            System.out.print("Caminho: ");
+            System.out.print("\nCaminho: ");
             for (int i = 0; i < path.size(); i++) {
                 System.out.print(path.get(i));
                 if (i < path.size() - 1) {
@@ -435,7 +433,6 @@ public class ManipulacaoGrafos {
         if (escolha <= 0) {
             escolha = pesoNegativo();
         }
-        System.out.println(escolha);
 
         switch (escolha) {
             case 1:
