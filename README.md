@@ -1,5 +1,5 @@
 # Grafos
-Uma biblioteca que permitirá o usuário manipular grafos
+Uma biblioteca que permite o usuário manipular grafos e utilizar algoritmos para sua análise
 
 ### Formato do Arquivo de Entrada
 O arquivo de entrada deverá ser escrito da seguinte forma:
