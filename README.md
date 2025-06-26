@@ -80,4 +80,9 @@ Há três arquivos:
     * dfsComponentes: Método para calculo do algoritmo dfs para cálculo de componentes conexas. Aceita como parâmetros atual, componente:
        * atual: nó inicial do componente ;
        * componente: lista de adjacências do componente.
+     
+    * distanciaGrafo: Método que recebe dois nódulos e irá calcular a distância e caminho entre eles utilizando 3 tipos de algoritmos que dependem do tipo e grafo:
+       * BFS: Grafos sem peso
+       * Dijkstra: Grafos com peso
+       * Bellman-Ford: Grafos com peso negativo
       
